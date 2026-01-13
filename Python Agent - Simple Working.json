@@ -1,0 +1,129 @@
+{
+  "name": "Python Agent - Simple Working",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "03671f07-4f99-41f4-8d84-7ac7cef0ceab",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        144,
+        304
+      ],
+      "webhookId": "python-simple"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a Python coding expert with self-correction abilities.\n\nWhen given a task:\n1. Write Python code to solve it\n2. CRITICAL: Always use print() to output the final result\n3. Execute the code using run_python tool\n4. If you get empty output, the code likely needs print() - add it and retry\n5. If you get an error, analyze it, fix the code, and retry\n6. Present the final answer once you get output\n\nIMPORTANT RULES:\n- ALWAYS end your code with print(result) or print(variable_name)\n- The code must explicitly print the output to see results\n- If output is empty, add print() statements and retry\n- Keep trying until you get a successful result with output\n\nExample:\n# Calculate sum\nresult = 5 + 3\nprint(result)  # ALWAYS print the final answer\n\nBe persistent and always print your results!",
+          "maxIterations": 10
+        }
+      },
+      "id": "4f6b7f3e-7bca-448e-a21e-9412b173e41d",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        384,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "id": "373426a8-48e3-40f1-91b3-cd4e3cef5a1e",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        384,
+        112
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "Sp8g5OPyKzOIdZNP",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://emkc.org/api/v2/piston/execute",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"language\": \"python\",\n  \"version\": \"3.10.0\",\n  \"files\": [\n    {\n      \"content\": \"{code}\"\n    }\n  ]\n}",
+        "placeholderDefinitions": {
+          "values": [
+            {
+              "name": "code",
+              "description": "The Python code to execute"
+            }
+          ]
+        }
+      },
+      "id": "8e9d46d4-060c-4fc5-9013-bbf79a6c6489",
+      "name": "run_python",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        624,
+        112
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "run_python": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "39e7e01e-73de-41bd-aca9-540ea854edc6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d98edee113d88f8e33104119914cb3f45e47df35a5ab4db8f36f1e42cb8fac9b"
+  },
+  "id": "h1Y6Cay8l5peLSg5",
+  "tags": []
+}
